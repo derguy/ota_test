@@ -1,17 +1,24 @@
 language: python
 python:
-- '3.6'
+    - "3.7"
+
+# Cache PlatformIO packages using Travis CI container-based infrastructure
 sudo: false
 cache:
-  directories:
-  - "~/.platformio"
+    directories:
+        - "~/.platformio"
+        - $HOME/.cache/pip
+
 install:
-- pip install -U platformio
+    - pip install -U platformio
+    - pio update
+
 script:
-- platformio run -d firmware -e emonpi_deploy
+    - pio run -e <ID_1>
+
 deploy:
   on:
-    repo: openenergymonitor/emonpi
+    repo: derguy/ota_test
     all_branches: true
     condition: $TRAVIS_TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$
   skip_cleanup: true

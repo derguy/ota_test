@@ -14,7 +14,7 @@ install:
     - pio update
 
 script:
-    - pio run -e <ID_1>
+    - pio run -e nodemcuv2
 
 deploy:
   on:

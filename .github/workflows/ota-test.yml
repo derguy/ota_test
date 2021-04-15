@@ -1,6 +1,10 @@
 name: ota-test pio
 
 on: [push]
+# on:
+#   push:
+#     tags:
+#       - 'v*'
 
 jobs:
   build:
@@ -29,3 +33,12 @@ jobs:
         pip install --upgrade platformio
     - name: Run PlatformIO
       run: pio run -e nodemcuv2
+    - name: upload linux artifact
+      uses: actions/upload-release-asset
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./.pio/build/nodemcuv2/firmware.bin
+        asset_name: firmware.bin
+        asset_content_type: application/octet-stream

@@ -1,4 +1,4 @@
-name: ota-test pio
+name: ota releasing
 
 # on: [push]
 on:

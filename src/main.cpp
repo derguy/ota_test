@@ -40,6 +40,8 @@ void checkForUpdate() {
         return;  // Can't connect to anything w/o certs!
     }
 
+	Serial.print("Current GITHUB_RELEASE_VERSION: ");
+    Serial.println(GITHUB_RELEASE_VERSION);
     Serial.println("Checking for update...");
 	ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser.getValue(), githubRepo.getValue(), GITHUB_RELEASE_VERSION, githubFileName.getValue(), 1 /* accept prerelease */);
     if (ESPOTAGitHub.checkUpgrade()) {
@@ -61,8 +63,6 @@ void setup() {
     Serial.begin(115200);
     setupWifimanager();
     checkForUpdate();
-    Serial.print("Current GITHUB_RELEASE_VERSION: ");
-    Serial.println(GITHUB_RELEASE_VERSION);
 }
 
 void loop() {

@@ -1,42 +1,71 @@
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <WS2812FX.h>
+#include <CertStoreBearSSL.h>
+#include <ESP_OTA_GitHub.h>
+#include <FS.h>
+#include <WiFiManager.h>
+BearSSL::CertStore certStore;
 
-#define LED_PIN 5
+#define GHOTA_CURRENT_TAG "0.0.2"
+#define GHOTA_ACCEPT_PRERELEASE 1
 
-WS2812FX pixels = WS2812FX(3, LED_PIN, NEO_RGBW + NEO_KHZ800);
+WiFiManagerParameter thingspeakApiKey("Thingspeak Key", "Thingspeak Key", "", 40);
+WiFiManagerParameter githubUser("Github user", "Github user", "derguy", 40);
+WiFiManagerParameter githubRepo("Github repo", "Github repo", "ota_test", 40);
+WiFiManagerParameter githubFileName("Github filename", "Github filename", "firmware.bin", 40);
 
-void red() {
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(0, 255, 0, 0));
-    pixels.show();
+void setupWifimanager() {
+    WiFi.mode(WIFI_STA);
+    WiFiManager wm;
+    // wm.resetSettings(); //reset settings - wipe credentials for testing
+ 	wm.addParameter(&thingspeakApiKey);
+ 	wm.addParameter(&githubUser);
+ 	wm.addParameter(&githubRepo);
+ 	wm.addParameter(&githubFileName);
+
+    bool res;
+    res = wm.autoConnect("esp", "111");  // password protected ap
+	
+    if (!res) {
+        Serial.println("Failed to connect");
+        // ESP.restart();
+    } else {
+        Serial.println("connected...");
+    }
 }
 
-void green() {
-    pixels.clear();
-    pixels.setPixelColor(2, pixels.Color(255, 0, 0, 0));
-    pixels.show();
-}
+void checkForUpdate() {
+    SPIFFS.begin();
+    int numCerts = certStore.initCertStore(SPIFFS, PSTR("/certs.idx"), PSTR("/certs.ar"));
+    Serial.print(F("Number of CA certs read: "));
+    Serial.println(numCerts);
+    if (numCerts == 0) {
+        Serial.println(F("No certs found. Did you run certs-from-mozill.py and upload the SPIFFS directory before running?"));
+        return;  // Can't connect to anything w/o certs!
+    }
 
-void sleep() {
-  Serial.println("sleep");
-  Serial.flush();
-  ESP.deepSleep(5e6);
-  delay(10);
+    Serial.println("Checking for update...");
+	ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser.getValue(), githubRepo.getValue(), GHOTA_CURRENT_TAG, githubFileName.getValue(), GHOTA_ACCEPT_PRERELEASE);
+    if (ESPOTAGitHub.checkUpgrade()) {
+        Serial.print("Upgrade found at: ");
+        Serial.println(ESPOTAGitHub.getUpgradeURL());
+        if (ESPOTAGitHub.doUpgrade()) {
+            Serial.println("Upgrade complete.");  //This should never be seen as the device should restart on successful upgrade.
+        } else {
+            Serial.print("Unable to upgrade: ");
+            Serial.println(ESPOTAGitHub.getLastError());
+        }
+    } else {
+        Serial.print("Not proceeding to upgrade: ");
+        Serial.println(ESPOTAGitHub.getLastError());
+    }
 }
 
 void setup() {
-  Serial.begin(115200);
-  Serial.setTimeout(2000);
-  while(!Serial) { }
-  Serial.println("setup...");
-  pixels.init();
+    Serial.begin(115200);
+    setupWifimanager();
+    checkForUpdate();
+    Serial.print("Current version: ");
+    Serial.println(GHOTA_CURRENT_TAG);
 }
 
 void loop() {
-  Serial.print("loop: ");
-  green();
-  delay(5000);
-  red();
-  sleep();
 }

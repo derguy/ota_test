@@ -39,6 +39,7 @@ jobs:
         script: |
           return context.payload.ref.replace(/\/refs\/tags\//, '');
     - name: Set release version in version.h
+      shell: bash
       run: |
         sed -i "" "s|<RELEASE_VERSION>|${{ steps.tag.outputs.result }}|g" src/version.h
 

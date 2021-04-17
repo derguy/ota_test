@@ -7,3 +7,7 @@ copy to project /data/certs.ar
 ## Upload certs.ar to arduino filesystem
 pio run -t uploadfs
 
+# Creating new release by tag
+git tag -a 0.0.2 -m "test 0.0.2"
+git push origin --tags
+

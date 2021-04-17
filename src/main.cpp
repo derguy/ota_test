@@ -2,9 +2,9 @@
 #include <ESP_OTA_GitHub.h>
 #include <FS.h>
 #include <WiFiManager.h>
+#include <version.h>
 BearSSL::CertStore certStore;
 
-#define GHOTA_CURRENT_TAG "0.0.4"
 #define GHOTA_ACCEPT_PRERELEASE 1
 
 WiFiManagerParameter thingspeakApiKey("Thingspeak Key", "Thingspeak Key", "", 40);
@@ -64,7 +64,7 @@ void setup() {
     setupWifimanager();
     checkForUpdate();
     Serial.print("Current version: ");
-    Serial.println(GHOTA_CURRENT_TAG);
+    Serial.println(VERSION);
 }
 
 void loop() {

@@ -28,3 +28,14 @@ jobs:
     # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Hello ${{ github.event.inputs.name }}"
+    - name: Extract tag name
+      id: tag
+      uses: actions/github-script@0.2.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          return "refs/tags/0.0.10".replace(/\refs\/tags\//, '');
+    - name: Set release version in version.h
+      shell: bash
+      run: |
+        echo result: ${{ steps.tag.outputs.result }}

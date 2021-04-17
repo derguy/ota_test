@@ -4,7 +4,7 @@
 #include <WiFiManager.h>
 BearSSL::CertStore certStore;
 
-#define GHOTA_CURRENT_TAG "0.0.2"
+#define GHOTA_CURRENT_TAG "0.0.4"
 #define GHOTA_ACCEPT_PRERELEASE 1
 
 WiFiManagerParameter thingspeakApiKey("Thingspeak Key", "Thingspeak Key", "", 40);

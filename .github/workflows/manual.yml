@@ -38,6 +38,5 @@ jobs:
     - name: Set release version in version.h
       shell: bash
       run: |
-        pwd
-        sed -i "s/<RELEASE_VERSION>/${{ steps.tag.outputs.result }}/g" ../../src/version.h
+        find . -type f -exec sed -i "s/<RELEASE_VERSION>/${{ steps.tag.outputs.result }}/g" {} +
         

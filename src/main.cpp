@@ -5,8 +5,6 @@
 #include <version.h>
 BearSSL::CertStore certStore;
 
-#define GHOTA_ACCEPT_PRERELEASE 1
-
 WiFiManagerParameter thingspeakApiKey("Thingspeak Key", "Thingspeak Key", "", 40);
 WiFiManagerParameter githubUser("Github user", "Github user", "derguy", 40);
 WiFiManagerParameter githubRepo("Github repo", "Github repo", "ota_test", 40);
@@ -43,7 +41,7 @@ void checkForUpdate() {
     }
 
     Serial.println("Checking for update...");
-	ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser.getValue(), githubRepo.getValue(), GHOTA_CURRENT_TAG, githubFileName.getValue(), GHOTA_ACCEPT_PRERELEASE);
+	ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser.getValue(), githubRepo.getValue(), GITHUB_RELEASE_VERSION, githubFileName.getValue(), 1 /* accept prerelease */);
     if (ESPOTAGitHub.checkUpgrade()) {
         Serial.print("Upgrade found at: ");
         Serial.println(ESPOTAGitHub.getUpgradeURL());
@@ -63,8 +61,8 @@ void setup() {
     Serial.begin(115200);
     setupWifimanager();
     checkForUpdate();
-    Serial.print("Current version: ");
-    Serial.println(VERSION);
+    Serial.print("Current GITHUB_RELEASE_VERSION: ");
+    Serial.println(GITHUB_RELEASE_VERSION);
 }
 
 void loop() {

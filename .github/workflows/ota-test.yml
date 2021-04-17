@@ -40,7 +40,7 @@ jobs:
           return context.payload.ref.replace(/\/refs\/tags\//, '');
     - name: Set release version in version.h
       run: |
-        sed -i 's/<RELEASE_VERSION>/${{ steps.tag.outputs.result }}/g' src/version.h
+        sed -i "" "s|<RELEASE_VERSION>|${{ steps.tag.outputs.result }}|g' src/version.h
 
     - name: Run PlatformIO
       run: pio run -e nodemcuv2

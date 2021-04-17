@@ -38,4 +38,5 @@ jobs:
     - name: Set release version in version.h
       shell: bash
       run: |
-        echo result: ${{ steps.tag.outputs.result }}
+        sed -i "" "s|<RELEASE_VERSION>|${{ steps.tag.outputs.result }}|g" ./src/version.h
+        

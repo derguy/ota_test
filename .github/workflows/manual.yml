@@ -34,7 +34,7 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          return "refs/tags/0.0.10".replace(/\refs\/tags\//, '');
+          return "refs/tags/0.0.10".replace(/refs\/tags\//, '');
     - name: Set release version in version.h
       shell: bash
       run: |

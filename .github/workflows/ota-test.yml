@@ -41,8 +41,7 @@ jobs:
     - name: Set release version in version.h
       shell: bash
       run: |
-        sed -i "" "s|<RELEASE_VERSION>|${{ steps.tag.outputs.result }}|g" src/version.h
-
+        find . -name "version.h" -exec sed -i "s/<RELEASE_VERSION>/${{ steps.tag.outputs.result }}/g" {} +
     - name: Run PlatformIO
       run: pio run -e nodemcuv2
     - name: Create Release

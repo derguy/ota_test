@@ -23,7 +23,7 @@ void sleep() {
 void wifiResetOnButtonPressed() {
 	// Reset if Button WIFI_RESET_BUTTON pressed on startup
 	pinMode(WIFI_RESET_BUTTON, INPUT);
-	digitalWrite(button, HIGH);
+	digitalWrite(WIFI_RESET_BUTTON, HIGH);
 	delay(10);
 	int buttonState = buttonState = digitalRead(WIFI_RESET_BUTTON);
 	if (buttonState == LOW) {

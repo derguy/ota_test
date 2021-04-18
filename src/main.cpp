@@ -22,7 +22,9 @@ void sleep() {
 
 void wifiResetOnButtonPressed() {
 	// Reset if Button WIFI_RESET_BUTTON pressed on startup
-	pinMode(WIFI_RESET_BUTTON, INPUT_PULLUP);
+	pinMode(WIFI_RESET_BUTTON, INPUT);
+	digitalWrite(button, HIGH);
+	delay(10);
 	int buttonState = buttonState = digitalRead(WIFI_RESET_BUTTON);
 	if (buttonState == LOW) {
 		Serial.println("WIFI_RESET_BUTTON pressed");

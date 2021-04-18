@@ -10,6 +10,13 @@ WiFiManagerParameter githubUser("Github user", "Github user", "derguy", 40);
 WiFiManagerParameter githubRepo("Github repo", "Github repo", "ota_test", 40);
 WiFiManagerParameter githubFileName("Github filename", "Github filename", "firmware.bin", 40);
 
+void sleep() {
+  Serial.println("sleep");
+  Serial.flush();
+  ESP.deepSleep(3*60e6);
+  delay(10);
+}
+
 void setupWifimanager() {
     WiFi.mode(WIFI_STA);
     WiFiManager wm;
@@ -63,6 +70,7 @@ void setup() {
     Serial.begin(115200);
     setupWifimanager();
     checkForUpdate();
+	sleep();
 }
 
 void loop() {

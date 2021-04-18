@@ -23,10 +23,10 @@ void sleep(unsigned long sleeptime = SLEEP_TIME) {
 void wifiResetOnButtonPressed() {
 	// Reset if Button WIFI_RESET_BUTTON pressed on startup
 	pinMode(WIFI_RESET_BUTTON, INPUT);
-	digitalWrite(WIFI_RESET_BUTTON, HIGH);
+	digitalWrite(WIFI_RESET_BUTTON, LOW);
 	delay(10);
 	int buttonState = buttonState = digitalRead(WIFI_RESET_BUTTON);
-	if (buttonState == LOW) {
+	if (buttonState == HIGH) {
 		Serial.println("WIFI_RESET_BUTTON pressed");
 		WiFiManager wifiManager;
 		wifiManager.resetSettings(); 
@@ -44,7 +44,7 @@ void setupWifimanager() {
  	wifiManager.addParameter(&githubFileName);
 
     bool res;
-    res = wifiManager.autoConnect("esp", "111");
+    res = wifiManager.autoConnect("esp", "12345678");
 	
     if (!res) {
         Serial.println("Failed to connect");

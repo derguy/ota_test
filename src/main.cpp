@@ -8,9 +8,8 @@ BearSSL::CertStore certStore;
 #define SLEEP_TIME 3 * 60e6
 #define WIFI_RESET_BUTTON 4
 
-WiFiManagerParameter thingspeakApiKey("Thingspeak Key", "Thingspeak Key", "", 40);
-WiFiManagerParameter githubUser("Github user", "Github user", "derguy", 40);
-WiFiManagerParameter githubRepo("Github repo", "Github repo", "ota_test", 40);
+WiFiManagerParameter githubUser("Github user", "Github user", "", 40);
+WiFiManagerParameter githubRepo("Github repo", "Github repo", "", 40);
 WiFiManagerParameter githubFileName("Github filename", "Github filename", "firmware.bin", 40);
 
 void sleep() {
@@ -39,7 +38,6 @@ void setupWifimanager() {
     WiFi.mode(WIFI_STA);
     WiFiManager wifiManager;
     
- 	wifiManager.addParameter(&thingspeakApiKey);
  	wifiManager.addParameter(&githubUser);
  	wifiManager.addParameter(&githubRepo);
  	wifiManager.addParameter(&githubFileName);

@@ -5,6 +5,9 @@
 #include <version.h>
 BearSSL::CertStore certStore;
 
+#define SLEEP_TIME 3 * 60e6
+#define WIFI_RESET_BUTTON 4
+
 WiFiManagerParameter thingspeakApiKey("Thingspeak Key", "Thingspeak Key", "", 40);
 WiFiManagerParameter githubUser("Github user", "Github user", "derguy", 40);
 WiFiManagerParameter githubRepo("Github repo", "Github repo", "ota_test", 40);
@@ -13,21 +16,34 @@ WiFiManagerParameter githubFileName("Github filename", "Github filename", "firmw
 void sleep() {
   Serial.println("sleep");
   Serial.flush();
-  ESP.deepSleep(3*60e6);
+  ESP.deepSleep(SLEEP_TIME);
   delay(10);
+}
+
+void wifiResetOnButtonPressed() {
+	// Reset if Button WIFI_RESET_BUTTON pressed on startup
+	pinMode(WIFI_RESET_BUTTON, INPUT_PULLUP);
+	int buttonState = buttonState = digitalRead(WIFI_RESET_BUTTON);
+	if (buttonState == LOW) {
+		Serial.println("WIFI_RESET_BUTTON pressed");
+		WiFiManager wifiManager;
+		wifiManager.resetSettings(); 
+		Serial.println("WifiManager resetted...");
+		// ESP.restart();
+	}
 }
 
 void setupWifimanager() {
     WiFi.mode(WIFI_STA);
-    WiFiManager wm;
-    // wm.resetSettings(); //reset settings - wipe credentials for testing
- 	wm.addParameter(&thingspeakApiKey);
- 	wm.addParameter(&githubUser);
- 	wm.addParameter(&githubRepo);
- 	wm.addParameter(&githubFileName);
+    WiFiManager wifiManager;
+    
+ 	wifiManager.addParameter(&thingspeakApiKey);
+ 	wifiManager.addParameter(&githubUser);
+ 	wifiManager.addParameter(&githubRepo);
+ 	wifiManager.addParameter(&githubFileName);
 
     bool res;
-    res = wm.autoConnect("esp", "111");  // password protected ap
+    res = wifiManager.autoConnect("esp", "111");
 	
     if (!res) {
         Serial.println("Failed to connect");
@@ -68,6 +84,7 @@ void checkForUpdate() {
 
 void setup() {
     Serial.begin(115200);
+	wifiResetOnButtonPressed();
     setupWifimanager();
     checkForUpdate();
 	sleep();

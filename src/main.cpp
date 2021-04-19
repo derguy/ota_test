@@ -3,10 +3,10 @@
 
 void setup() {
     Serial.begin(115200);
-	wifiResetOnButtonPressed();
+    //wifiReset();
     setupWifimanager();
     checkForUpdate();
-	sleep(1 * 60e6);
+    sleep(1 * 60e6);
 }
 
 void loop() {

@@ -6,7 +6,6 @@
 
 BearSSL::CertStore certStore;
 
-#define SLEEP_TIME 3 * 60e6
 #define WIFI_RESET_BUTTON 4
 
 char githubUser[40] = "";
@@ -21,13 +20,6 @@ void saveConfigCallback() {
     shouldSaveConfig = true;
 }
 
-void sleep(unsigned long sleeptime = SLEEP_TIME) {
-    Serial.println("sleep");
-    Serial.flush();
-    ESP.deepSleep(SLEEP_TIME);
-    delay(10);
-}
-
 void wifiReset() {
     WiFiManager wifiManager;
     wifiManager.resetSettings();
@@ -40,13 +32,11 @@ void readConfiguration() {
     if (SPIFFS.begin()) {
         Serial.println("mounted file system");
         if (SPIFFS.exists("/config.json")) {
-            //file exists, reading and loading
             Serial.println("reading config file");
             File configFile = SPIFFS.open("/config.json", "r");
             if (configFile) {
                 Serial.println("opened config file");
                 size_t size = configFile.size();
-                // Allocate a buffer to store contents of the file.
                 std::unique_ptr<char[]> buf(new char[size]);
 
                 configFile.readBytes(buf.get(), size);
@@ -144,7 +134,6 @@ void checkForUpdate() {
     Serial.print("Current GITHUB_RELEASE_VERSION: ");
     Serial.println(GITHUB_RELEASE_VERSION);
     Serial.println("Checking for update...");
-    Serial.println(githubUser);
     ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser, githubRepo, GITHUB_RELEASE_VERSION, githubReleaseFilename, 1 /* accept prerelease */);
     if (ESPOTAGitHub.checkUpgrade()) {
         Serial.print("Upgrade found at: ");

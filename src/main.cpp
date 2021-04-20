@@ -1,7 +1,8 @@
-#include <Arduino.h>
-#include "ota.h"
+#include <OtaManager.h>
 
 #define SLEEP_TIME 3 * 60e6
+
+OtaManager otaManager;
 
 void sleep(unsigned long sleeptime = SLEEP_TIME) {
     Serial.println("sleep");
@@ -12,10 +13,10 @@ void sleep(unsigned long sleeptime = SLEEP_TIME) {
 
 void setup() {
     Serial.begin(115200);
-    setupWifimanager(false);
-    checkForUpdate();
+    otaManager.setupWifimanager(false);
+    otaManager.checkForUpdate();
     Serial.print("apiKey in setup: ");
-    Serial.println(apiKey);
+    Serial.println(otaManager.apiKey);
     sleep(1 * 60e6);
 }
 

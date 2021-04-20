@@ -1,12 +1,16 @@
+#include "Arduino.h"
+#include "OtaManager.h"
+#include <FS.h>
 #include <CertStoreBearSSL.h>
 #include <ESP_OTA_GitHub.h>
-#include <FS.h>
 #include <WiFiManager.h>
 #include "version.h"
 
+#define WIFI_RESET_BUTTON 4
+
 BearSSL::CertStore certStore;
 
-#define WIFI_RESET_BUTTON 4
+OtaManager::OtaManager() {};
 
 char githubUser[40] = "";
 char githubRepo[40] = "";
@@ -95,7 +99,7 @@ void writeConfiguration() {
     configFile.close();
 }
 
-void setupWifimanager(bool startConfigPortal = false) {
+void OtaManager::setupWifimanager(bool startConfigPortal = false) {
     WiFi.mode(WIFI_STA);
     WiFiManager wifiManager;
 
@@ -137,7 +141,7 @@ void setupWifimanager(bool startConfigPortal = false) {
     }
 }
 
-void checkForUpdate() {
+void OtaManager::checkForUpdate() {
     SPIFFS.begin();
     int numCerts = certStore.initCertStore(SPIFFS, PSTR("/certs.idx"), PSTR("/certs.ar"));
     Serial.print(F("Number of CA certs read: "));

@@ -12,8 +12,10 @@ void sleep(unsigned long sleeptime = SLEEP_TIME) {
 
 void setup() {
     Serial.begin(115200);
-    setupWifimanager(false);
+    setupWifimanager(true);
     checkForUpdate();
+    Serial.print("api-key: ");
+    Serial.print(apiKey);
     sleep(1 * 60e6);
 }
 

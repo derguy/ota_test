@@ -9,4 +9,5 @@ pio run -t uploadfs
 
 # Creating new release by tag
 git tag -a 0.0.2 -m "test 0.0.2" && git push origin --tags
-
+# Synchronize Tags (delete local and fetch current tags)
+git tag -l | xargs git tag -d && git fetch --tags

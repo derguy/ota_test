@@ -11,6 +11,7 @@ BearSSL::CertStore certStore;
 char githubUser[40] = "";
 char githubRepo[40] = "";
 char githubReleaseFilename[40] = "firmware.bin";
+char apiKey[40] = "";
 
 bool shouldSaveConfig = false;
 
@@ -45,9 +46,18 @@ void readConfiguration() {
                 if (!error) {
                     Serial.println("parsed json");
 
-                    strcpy(githubUser, json["githubUser"]);
-                    strcpy(githubRepo, json["githubRepo"]);
-                    strcpy(githubReleaseFilename, json["githubReleaseFilename"]);
+                    if (json["githubUser"]) {
+                        strcpy(githubUser, json["githubUser"]);
+                    }
+                    if (json["githubRepo"]) {
+                        strcpy(githubRepo, json["githubRepo"]);
+                    }
+                    if (json["githubReleaseFilename"]) {
+                        strcpy(githubReleaseFilename, json["githubReleaseFilename"]);
+                    }
+                    if (json["apiKey"]) {
+                        strcpy(apiKey, json["apiKey"]);
+                    }
 
                     Serial.print("githubUser: ");
                     Serial.println(githubUser);
@@ -55,6 +65,8 @@ void readConfiguration() {
                     Serial.println(githubRepo);
                     Serial.print("githubReleaseFilename: ");
                     Serial.println(githubReleaseFilename);
+                    Serial.print("apiKey: ");
+                    Serial.println(apiKey);
                 } else {
                     Serial.println("failed to load json config");
                 }
@@ -71,6 +83,7 @@ void writeConfiguration() {
     json["githubUser"] = githubUser;
     json["githubRepo"] = githubRepo;
     json["githubReleaseFilename"] = githubReleaseFilename;
+    json["apiKey"] = apiKey;
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {
@@ -93,10 +106,12 @@ void setupWifimanager(bool startConfigPortal = false) {
     WiFiManagerParameter custom_githubUser("githubUser", "githubUser", githubUser, 40);
     WiFiManagerParameter custom_githubRepo("githubRepo", "githubRepo", githubRepo, 40);
     WiFiManagerParameter custom_githubReleaseFilename("githubReleaseFilename", "githubReleaseFilename", githubReleaseFilename, 40);
+    WiFiManagerParameter custom_apiKey("apiKey", "apiKey", apiKey, 40);
 
     wifiManager.addParameter(&custom_githubUser);
     wifiManager.addParameter(&custom_githubRepo);
     wifiManager.addParameter(&custom_githubReleaseFilename);
+    wifiManager.addParameter(&custom_apiKey);
 
     bool res;
 
@@ -114,6 +129,7 @@ void setupWifimanager(bool startConfigPortal = false) {
         strcpy(githubUser, custom_githubUser.getValue());
         strcpy(githubRepo, custom_githubRepo.getValue());
         strcpy(githubReleaseFilename, custom_githubReleaseFilename.getValue());
+        strcpy(apiKey, custom_apiKey.getValue());
     }
     if (shouldSaveConfig) {
         writeConfiguration();

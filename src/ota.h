@@ -3,9 +3,9 @@
 
 void sleep(unsigned long sleeptime);
 
-void wifiResetOnButtonPressed();
+void wifiReset();
 
-void setupWifimanager();
+void setupWifimanager(bool startConfigPortal);
 
 void checkForUpdate();
 

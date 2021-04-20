@@ -9,9 +9,17 @@ BearSSL::CertStore certStore;
 #define SLEEP_TIME 3 * 60e6
 #define WIFI_RESET_BUTTON 4
 
-WiFiManagerParameter githubUser("Github user", "Github user", "", 40);
-WiFiManagerParameter githubRepo("Github repo", "Github repo", "", 40);
-WiFiManagerParameter githubFileName("Github filename", "Github filename", "firmware.bin", 40);
+char githubUser[40] = "";
+char githubRepo[40] = "";
+char githubReleaseFilename[40] = "firmware.bin";
+
+bool shouldSaveConfig = false;
+
+// https://github.com/zhouhan0126/WIFIMANAGER-ESP32/blob/master/examples/AutoConnectWithFSParameters/AutoConnectWithFSParameters.ino
+void saveConfigCallback() {
+    Serial.println("Should save config");
+    shouldSaveConfig = true;
+}
 
 void sleep(unsigned long sleeptime = SLEEP_TIME) {
     Serial.println("sleep");
@@ -27,22 +35,99 @@ void wifiReset() {
     // ESP.restart();
 }
 
-void setupWifimanager() {
+void readConfiguration() {
+    Serial.println("mounting FS...");
+    if (SPIFFS.begin()) {
+        Serial.println("mounted file system");
+        if (SPIFFS.exists("/config.json")) {
+            //file exists, reading and loading
+            Serial.println("reading config file");
+            File configFile = SPIFFS.open("/config.json", "r");
+            if (configFile) {
+                Serial.println("opened config file");
+                size_t size = configFile.size();
+                // Allocate a buffer to store contents of the file.
+                std::unique_ptr<char[]> buf(new char[size]);
+
+                configFile.readBytes(buf.get(), size);
+                DynamicJsonDocument json(1024);
+                auto error = deserializeJson(json, buf.get());
+                if (!error) {
+                    Serial.println("parsed json");
+
+                    strcpy(githubUser, json["githubUser"]);
+                    strcpy(githubRepo, json["githubRepo"]);
+                    strcpy(githubReleaseFilename, json["githubReleaseFilename"]);
+
+                    Serial.print("githubUser: ");
+                    Serial.println(githubUser);
+                    Serial.print("githubRepo: ");
+                    Serial.println(githubRepo);
+                    Serial.print("githubReleaseFilename: ");
+                    Serial.println(githubReleaseFilename);
+                } else {
+                    Serial.println("failed to load json config");
+                }
+            }
+        }
+    } else {
+        Serial.println("failed to mount FS");
+    }
+}
+
+void writeConfiguration() {
+    Serial.println("saving config");
+    DynamicJsonDocument json(1024);
+    json["githubUser"] = githubUser;
+    json["githubRepo"] = githubRepo;
+    json["githubReleaseFilename"] = githubReleaseFilename;
+
+    File configFile = SPIFFS.open("/config.json", "w");
+    if (!configFile) {
+        Serial.println("failed to open config file for writing");
+    }
+
+    serializeJson(json, Serial);
+    serializeJson(json, configFile);
+    configFile.close();
+}
+
+void setupWifimanager(bool startConfigPortal = false) {
     WiFi.mode(WIFI_STA);
     WiFiManager wifiManager;
 
-    wifiManager.addParameter(&githubUser);
-    wifiManager.addParameter(&githubRepo);
-    wifiManager.addParameter(&githubFileName);
+    wifiManager.setSaveConfigCallback(saveConfigCallback);
+
+    readConfiguration();
+
+    WiFiManagerParameter custom_githubUser("githubUser", "githubUser", githubUser, 40);
+    WiFiManagerParameter custom_githubRepo("githubRepo", "githubRepo", githubRepo, 40);
+    WiFiManagerParameter custom_githubReleaseFilename("githubReleaseFilename", "githubReleaseFilename", githubReleaseFilename, 40);
+
+    wifiManager.addParameter(&custom_githubUser);
+    wifiManager.addParameter(&custom_githubRepo);
+    wifiManager.addParameter(&custom_githubReleaseFilename);
 
     bool res;
-    res = wifiManager.autoConnect("esp", "12345678");
+
+    if (startConfigPortal) {
+        res = wifiManager.startConfigPortal("esp", "12345678");
+    } else {
+        res = wifiManager.autoConnect("esp", "12345678");
+    }
 
     if (!res) {
         Serial.println("Failed to connect");
         ESP.restart();
     } else {
         Serial.println("connected...");
+        strcpy(githubUser, custom_githubUser.getValue());
+        strcpy(githubRepo, custom_githubRepo.getValue());
+        strcpy(githubReleaseFilename, custom_githubReleaseFilename.getValue());
+    }
+    if (shouldSaveConfig) {
+        writeConfiguration();
+        ESP.reset();
     }
 }
 
@@ -59,7 +144,8 @@ void checkForUpdate() {
     Serial.print("Current GITHUB_RELEASE_VERSION: ");
     Serial.println(GITHUB_RELEASE_VERSION);
     Serial.println("Checking for update...");
-    ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser.getValue(), githubRepo.getValue(), GITHUB_RELEASE_VERSION, githubFileName.getValue(), 1 /* accept prerelease */);
+    Serial.println(githubUser);
+    ESPOTAGitHub ESPOTAGitHub(&certStore, githubUser, githubRepo, GITHUB_RELEASE_VERSION, githubReleaseFilename, 1 /* accept prerelease */);
     if (ESPOTAGitHub.checkUpgrade()) {
         Serial.print("Upgrade found at: ");
         Serial.println(ESPOTAGitHub.getUpgradeURL());

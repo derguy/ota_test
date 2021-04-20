@@ -14,8 +14,8 @@ void setup() {
     Serial.begin(115200);
     setupWifimanager(false);
     checkForUpdate();
-    Serial.print("api-key: ");
-    Serial.print(apiKey);
+    Serial.print("apiKey in setup: ");
+    Serial.println(apiKey);
     sleep(1 * 60e6);
 }
 

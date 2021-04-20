@@ -10,12 +10,17 @@
 
 BearSSL::CertStore certStore;
 
-OtaManager::OtaManager() {};
-
 char githubUser[40] = "";
 char githubRepo[40] = "";
 char githubReleaseFilename[40] = "firmware.bin";
-char apiKey[40] = "";
+
+OtaManager::OtaManager() {
+    strcpy(_apiKey, "");
+}
+
+char* OtaManager::getApiKey() {
+    return _apiKey;
+}
 
 bool shouldSaveConfig = false;
 
@@ -32,7 +37,7 @@ void wifiReset() {
     // ESP.restart();
 }
 
-void readConfiguration() {
+void OtaManager::readConfiguration() {
     Serial.println("mounting FS...");
     if (SPIFFS.begin()) {
         Serial.println("mounted file system");
@@ -60,7 +65,7 @@ void readConfiguration() {
                         strcpy(githubReleaseFilename, json["githubReleaseFilename"]);
                     }
                     if (json["apiKey"]) {
-                        strcpy(apiKey, json["apiKey"]);
+                        strcpy(_apiKey, json["apiKey"]);
                     }
 
                     Serial.print("githubUser: ");
@@ -70,7 +75,7 @@ void readConfiguration() {
                     Serial.print("githubReleaseFilename: ");
                     Serial.println(githubReleaseFilename);
                     Serial.print("apiKey: ");
-                    Serial.println(apiKey);
+                    Serial.println(_apiKey);
                 } else {
                     Serial.println("failed to load json config");
                 }
@@ -81,13 +86,13 @@ void readConfiguration() {
     }
 }
 
-void writeConfiguration() {
+void OtaManager::writeConfiguration() {
     Serial.println("saving config");
     DynamicJsonDocument json(1024);
     json["githubUser"] = githubUser;
     json["githubRepo"] = githubRepo;
     json["githubReleaseFilename"] = githubReleaseFilename;
-    json["apiKey"] = apiKey;
+    json["apiKey"] = _apiKey;
 
     File configFile = SPIFFS.open("/config.json", "w");
     if (!configFile) {
@@ -110,7 +115,7 @@ void OtaManager::setupWifimanager(bool startConfigPortal = false) {
     WiFiManagerParameter custom_githubUser("githubUser", "githubUser", githubUser, 40);
     WiFiManagerParameter custom_githubRepo("githubRepo", "githubRepo", githubRepo, 40);
     WiFiManagerParameter custom_githubReleaseFilename("githubReleaseFilename", "githubReleaseFilename", githubReleaseFilename, 40);
-    WiFiManagerParameter custom_apiKey("apiKey", "apiKey", apiKey, 40);
+    WiFiManagerParameter custom_apiKey("apiKey", "apiKey", _apiKey, 40);
 
     wifiManager.addParameter(&custom_githubUser);
     wifiManager.addParameter(&custom_githubRepo);
@@ -133,7 +138,7 @@ void OtaManager::setupWifimanager(bool startConfigPortal = false) {
         strcpy(githubUser, custom_githubUser.getValue());
         strcpy(githubRepo, custom_githubRepo.getValue());
         strcpy(githubReleaseFilename, custom_githubReleaseFilename.getValue());
-        strcpy(apiKey, custom_apiKey.getValue());
+        strcpy(_apiKey, custom_apiKey.getValue());
     }
     if (shouldSaveConfig) {
         writeConfiguration();

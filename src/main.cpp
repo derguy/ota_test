@@ -16,7 +16,7 @@ void setup() {
     otaManager.setupWifimanager(false);
     otaManager.checkForUpdate();
     Serial.print("apiKey in setup: ");
-    Serial.println(otaManager.apiKey);
+    Serial.println(otaManager.getApiKey());
     sleep(1 * 60e6);
 }
 

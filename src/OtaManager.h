@@ -11,6 +11,9 @@ class OtaManager {
         void checkForUpdate();
         char* getApiKey();
     private:
+        char githubUser[40];
+        char githubRepo[40];
+        char githubReleaseFilename[40];
         char _apiKey[40];
         void readConfiguration();
         void writeConfiguration();

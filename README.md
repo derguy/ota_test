@@ -6,6 +6,8 @@ python certs-from-mozilla.py
 copy to project /data/certs.ar
 ## Upload certs.ar to arduino filesystem
 pio run -t uploadfs
+or in platformio: pio>nodemcu2>Platform>Upload Filesystem Image
+(if you don't find the option maybe update platforms in pio to latest version)
 
 # Creating new release by tag
 git tag -a 0.0.2 -m "test 0.0.2" && git push origin --tags

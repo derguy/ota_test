@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "OtaManager.h"
-#include <FS.h>
+#include <LittleFS.h>
 #include <CertStoreBearSSL.h>
 #include <ESP_OTA_GitHub.h>
 #include <WiFiManager.h>
@@ -10,13 +10,7 @@
 
 BearSSL::CertStore certStore;
 
-char githubUser[40] = "";
-char githubRepo[40] = "";
-char githubReleaseFilename[40] = "firmware.bin";
-
-OtaManager::OtaManager() {
-    strcpy(_apiKey, "");
-}
+OtaManager::OtaManager() {}
 
 char* OtaManager::getApiKey() {
     return _apiKey;
@@ -39,11 +33,11 @@ void wifiReset() {
 
 void OtaManager::readConfiguration() {
     Serial.println("mounting FS...");
-    if (SPIFFS.begin()) {
+    if (LittleFS.begin()) {
         Serial.println("mounted file system");
-        if (SPIFFS.exists("/config.json")) {
+        if (LittleFS.exists("/config.json")) {
             Serial.println("reading config file");
-            File configFile = SPIFFS.open("/config.json", "r");
+            File configFile = LittleFS.open("/config.json", "r");
             if (configFile) {
                 Serial.println("opened config file");
                 size_t size = configFile.size();
@@ -80,7 +74,7 @@ void OtaManager::readConfiguration() {
                     Serial.println("failed to load json config");
                 }
             }
-        }
+     }
     } else {
         Serial.println("failed to mount FS");
     }
@@ -94,7 +88,7 @@ void OtaManager::writeConfiguration() {
     json["githubReleaseFilename"] = githubReleaseFilename;
     json["apiKey"] = _apiKey;
 
-    File configFile = SPIFFS.open("/config.json", "w");
+    File configFile = LittleFS.open("/config.json", "w");
     if (!configFile) {
         Serial.println("failed to open config file for writing");
     }
@@ -147,12 +141,12 @@ void OtaManager::setupWifimanager(bool startConfigPortal = false) {
 }
 
 void OtaManager::checkForUpdate() {
-    SPIFFS.begin();
-    int numCerts = certStore.initCertStore(SPIFFS, PSTR("/certs.idx"), PSTR("/certs.ar"));
+    LittleFS.begin();
+    int numCerts = certStore.initCertStore(LittleFS, PSTR("/certs.idx"), PSTR("/certs.ar"));
     Serial.print(F("Number of CA certs read: "));
     Serial.println(numCerts);
     if (numCerts == 0) {
-        Serial.println(F("No certs found. Did you run certs-from-mozill.py and upload the SPIFFS directory before running?"));
+        Serial.println(F("No certs found. Did you run certs-from-mozill.py and upload the LittleFS directory before running?"));
         return;  // Can't connect to anything w/o certs!
     }
 

@@ -6,14 +6,6 @@
 #include "Arduino.h"
 #include "version.h"
 
-// Number of seconds after reset during which a
-// subseqent reset will be considered a double reset.
-#define DRD_TIMEOUT 5
-// RTC Memory Address for the DoubleResetDetector to use
-#define DRD_ADDRESS 0
-
-DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
-
 #define WIFI_RESET_BUTTON 4
 
 BearSSL::CertStore certStore;

@@ -13,7 +13,7 @@ void sleep(unsigned long sleeptime = SLEEP_TIME) {
 
 void setup() {
     Serial.begin(115200);
-    otaManager.setupWifimanager(false);
+    otaManager.setupWifimanager(false, true);
     otaManager.checkForUpdate();
     Serial.print("apiKey in setup: ");
     Serial.println(otaManager.getApiKey());

@@ -7,7 +7,7 @@ class OtaManager {
     public:
         OtaManager();
         void wifiReset();
-        void setupWifimanager(bool startConfigPortal);
+        void setupWifimanager(bool startConfigPortal, bool detectDoubleReset);
         void checkForUpdate();
         char* getApiKey();
     private:

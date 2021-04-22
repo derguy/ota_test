@@ -9,7 +9,7 @@
 
 // Number of seconds after reset during which a
 // subseqent reset will be considered a double reset.
-#define DRD_TIMEOUT 8
+#define DRD_TIMEOUT 5
 // RTC Memory Address for the DoubleResetDetector to use
 #define DRD_ADDRESS 0
 
@@ -107,12 +107,22 @@ void OtaManager::writeConfiguration() {
     configFile.close();
 }
 
-void OtaManager::setupWifimanager(bool startConfigPortal = false) {
-    if (drd.detectDoubleReset()) {
-        Serial.println("Double Reset Detected");
-        startConfigPortal = true;
-    } else {
-        Serial.println("No Double Reset Detected");
+void OtaManager::setupWifimanager(bool startConfigPortal = false, bool detectDoubleReset = true) {
+    if (detectDoubleReset) {
+        if (drd.detectDoubleReset()) {
+            Serial.println("Double Reset Detected");
+            startConfigPortal = true;
+        } else {
+            Serial.println("No Double Reset Detected");
+        }
+        unsigned long starttime = millis();
+        unsigned long endtime = starttime;
+        while ((endtime - starttime) <= DRD_TIMEOUT * 1000)
+        {
+            drd.loop();
+            endtime = millis();
+        }
+        drd.stop();
     }
 
     WiFi.mode(WIFI_STA);

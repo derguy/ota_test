@@ -1,10 +1,19 @@
-#include "Arduino.h"
 #include "OtaManager.h"
-#include <LittleFS.h>
 #include <CertStoreBearSSL.h>
+#include <DoubleResetDetector.h>
 #include <ESP_OTA_GitHub.h>
+#include <LittleFS.h>
 #include <WiFiManager.h>
+#include "Arduino.h"
 #include "version.h"
+
+// Number of seconds after reset during which a
+// subseqent reset will be considered a double reset.
+#define DRD_TIMEOUT 8
+// RTC Memory Address for the DoubleResetDetector to use
+#define DRD_ADDRESS 0
+
+DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 
 #define WIFI_RESET_BUTTON 4
 
@@ -74,7 +83,7 @@ void OtaManager::readConfiguration() {
                     Serial.println("failed to load json config");
                 }
             }
-     }
+        }
     } else {
         Serial.println("failed to mount FS");
     }
@@ -99,6 +108,13 @@ void OtaManager::writeConfiguration() {
 }
 
 void OtaManager::setupWifimanager(bool startConfigPortal = false) {
+    if (drd.detectDoubleReset()) {
+        Serial.println("Double Reset Detected");
+        startConfigPortal = true;
+    } else {
+        Serial.println("No Double Reset Detected");
+    }
+
     WiFi.mode(WIFI_STA);
     WiFiManager wifiManager;
 

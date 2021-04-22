@@ -107,22 +107,11 @@ void OtaManager::writeConfiguration() {
     configFile.close();
 }
 
-void OtaManager::setupWifimanager(bool startConfigPortal = false, bool detectDoubleReset = true) {
-    if (detectDoubleReset) {
-        if (drd.detectDoubleReset()) {
-            Serial.println("Double Reset Detected");
-            startConfigPortal = true;
-        } else {
-            Serial.println("No Double Reset Detected");
-        }
-        unsigned long starttime = millis();
-        unsigned long endtime = starttime;
-        while ((endtime - starttime) <= DRD_TIMEOUT * 1000)
-        {
-            drd.loop();
-            endtime = millis();
-        }
-        drd.stop();
+void OtaManager::setupWifimanager(bool startConfigPortal = false, int configPortalButtonPin = 4) {
+    pinMode(configPortalButtonPin, INPUT_PULLUP);
+    if (digitalRead(configPortalButtonPin) == LOW) {
+        Serial.println("Button for configportal pressed");
+        startConfigPortal = true;
     }
 
     WiFi.mode(WIFI_STA);

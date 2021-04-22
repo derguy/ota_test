@@ -1,6 +1,5 @@
 #include "OtaManager.h"
 #include <CertStoreBearSSL.h>
-#include <DoubleResetDetector.h>
 #include <ESP_OTA_GitHub.h>
 #include <LittleFS.h>
 #include <WiFiManager.h>
